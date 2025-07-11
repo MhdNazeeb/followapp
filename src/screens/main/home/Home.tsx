@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
@@ -8,25 +7,24 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
-import BackArrowIcon from '../../../assets/icons/BackArrow';
-import NotificationBellIcon from '../../../assets/icons/NotificationIcon';
-import { getItem } from '../../../utils/storage';
+
 import { useJobs } from '../../../services/api/useGetJobs';
 import JobCard from '../../../components/JobCard';
 import Header from '../../../components/Header';
 import { useSearchJob } from '../../../services/api/useSearchJob';
-import { getHeight } from '../../../Theme/constens';
+import { getHeight, getWidth } from '../../../Theme/constens';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import LoginPromptModal from '../../../components/LoginPromptModal';
+import { useNavigation } from '@react-navigation/native';
+import { routeNames } from '../../../navgation/Screens';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../../navgation/navigation.types';
+import { Portal } from 'react-native-paper';
 
 const HomeScreen = () => {
   const { data: jobs, refetch, isLoading } = useJobs();
   const scrollY = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
-
-  // useEffect(() => {
-  //   refetch();    
-  // }, []);
 
   // Calculate proper bottom padding to account for the tab bar
   const TAB_BAR_HEIGHT = 0; // Estimate of your tab bar height
@@ -36,12 +34,23 @@ const HomeScreen = () => {
 
   // Calculate the content padding from the top based on header height
   const contentPaddingTop = getHeight(5.50);
-  useEffect(() => {
-    console.log(isLoading, 'this is is loading..>>');
 
-  }, [isLoading])
+  // Add state for login modal
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
+      <Portal>
+        <LoginPromptModal
+          visible={showLoginModal}
+          onCancel={() => setShowLoginModal(false)}
+          onLogin={() => {
+            setShowLoginModal(false);
+            navigation.navigate(routeNames.login);
+          }}
+        />
+      </Portal>
       {/* Glassmorphism Header with scroll blur effect */}
       <Header
         screen="home"
@@ -50,21 +59,26 @@ const HomeScreen = () => {
 
       <Animated.FlatList
         contentContainerStyle={[
-          styles.jobListContent,
           {
             paddingTop: contentPaddingTop,
-            paddingBottom: bottomPadding
+            flexGrow: 1,
+            justifyContent: 'center',
+            paddingLeft:getWidth(23)
           }
         ]}
         showsVerticalScrollIndicator={false}
         data={jobs || []}
         keyExtractor={(item) => item?._id}
-        renderItem={({ item }) => <JobCard job={item} screen="home" />}
+        renderItem={({ item }) => <JobCard job={item} screen="home" setShowLoginModal={setShowLoginModal} />}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
         )}
         scrollEventThrottle={1}
+        initialNumToRender={5}
+        maxToRenderPerBatch={5}
+        windowSize={7}
+        removeClippedSubviews={true}
         ListEmptyComponent={
           isLoading ? (
             <View style={styles.emptyContainer}>
@@ -77,6 +91,7 @@ const HomeScreen = () => {
           )
         }
       />
+
     </SafeAreaView>
   );
 };
@@ -86,9 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f7fa',
   },
-  jobListContent: {
-    // paddingBottom is now calculated and applied dynamically
-  },
+ 
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',

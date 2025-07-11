@@ -8,7 +8,7 @@ export type RoutePaths = RouteNames[keyof RouteNames];
 export type RootStackParamList = {
     [routeNames.home]: undefined;
     [routeNames?.login]: undefined;
-    [routeNames.jobDetails]: { job: JobData };
+    [routeNames.jobDetails]: { jobid: string };
     [routeNames.search]: undefined;
     [routeNames.main]: undefined;
     [routeNames.signUp]: undefined;

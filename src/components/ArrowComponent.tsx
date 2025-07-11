@@ -1,24 +1,47 @@
-import { View, Pressable } from 'react-native';
+import { Platform, TouchableNativeFeedback, View, Pressable } from 'react-native';
 import React from 'react';
 import BackArrowIcon from '../assets/icons/BackArrow';
+import { TouchableRipple } from 'react-native-paper';
+import { Haptics } from '../utils/Haptics';
 
 const ArrowComponent = ({ onPress }: any) => {
     return (
-        <Pressable
-            android_ripple={{ color: 'rgba(0, 0, 0, 0.2)', borderless: true }}
+        <View
             style={{
-                width: 25,
-                height: 20,
-                borderRadius: 25,
-                // backgroundColor: 'rgba(128, 128, 128, 0.6)', 
+                borderRadius: 20,
+                overflow: 'hidden',
+                width: 40,
+                height: 40,
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                backgroundColor: 'rgba(128,128,128,0.08)',
             }}
-            onPress={onPress}
         >
-            <BackArrowIcon width={40} height={30}  />
-        </Pressable>
+            <TouchableRipple
+                onPress={() => {
+                    Haptics.heavy()
+                    onPress()
+
+                }
+
+
+                }
+                rippleColor={'#808080'}
+                borderless={false} 
+                style={{
+                    width: 40,
+                    height: 40,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderRadius: 20,
+                }}
+            >
+                <View style={{ justifyContent: 'center', alignItems: 'center', width: 40, height: 40, borderRadius: 20 }}>
+                    <BackArrowIcon width={24} height={24} />
+                </View>
+            </TouchableRipple>
+        </View>
     );
-};
+}
 
 export default ArrowComponent;

@@ -6,8 +6,6 @@ import { AxiosResponse } from 'axios';
 
 
 const fetchJobs = async (): Promise<JobData[]> => {
-        console.log('hai here first');
-        
     const {data}: AxiosResponse<JobData[]> = await api.get("jobs");    
     
     return data;

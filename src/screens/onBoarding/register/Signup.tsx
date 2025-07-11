@@ -6,6 +6,9 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform,
     ScrollView,
 } from 'react-native';
 import { RootStackParamList } from '../../../navgation/navigation.types';
@@ -20,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+const { width, height } = Dimensions.get('window');
 
 const SignUpScreen = () => {
     const { signup } = useSignup()
@@ -42,111 +46,98 @@ const SignUpScreen = () => {
 
     return (
         <SafeAreaView style={styles.container}>
-           
+            <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardAvoidingView}
+                keyboardVerticalOffset={Platform.OS === 'android' ? 30 : 0}
+            >
+                <ScrollView 
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    <View style={styles.content}>
+                        <View style={styles.titleContainer}>
+                            <Text style={styles.titleQatar}>Qatar </Text>
+                            <Text style={styles.titleFollow}>Follow</Text>
+                        </View>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                 <View style={styles.titleContainer}>
-                                    <Text style={styles.titleQatar}>Qatar </Text>
-                                    <Text style={styles.titleFollow}>Follow</Text>
+                        <View style={styles.formShadowWrapper}>
+                            <View style={styles.formContainer}>
+                                <Text style={styles.heading}>Create New Account</Text>
+                                <Text style={styles.subheading}>Join Our Community Today!</Text>
+
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Full Name<Text style={styles.required}>*</Text></Text>
+                                    <TextInput
+                                        style={[styles.input, errors.email && styles.inputError]}
+                                        placeholder="Enter your full name"
+                                        autoCapitalize="words"
+                                        {...register("fullName")}
+                                        onChangeText={(text) => setValue("fullName", text)}
+                                        placeholderTextColor={'#666'}
+                                    />
+                                    {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
                                 </View>
 
-                <View style={styles.formContainer}>
-                    <Text style={styles.heading}>Create New Account</Text>
-                    <Text style={styles.subheading}>Join Our Community Today!</Text>
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>
+                                        Email Address<Text style={styles.required}>*</Text>
+                                    </Text>
+                                    <TextInput
+                                        style={[styles.input, errors.email && styles.inputError]}
+                                        placeholder="Enter your email"
+                                        keyboardType="email-address"
+                                        autoCapitalize="none"
+                                        {...register("email")}
+                                        onChangeText={(text) => setValue("email", text)}
+                                        placeholderTextColor={'#666'}
+                                    />
+                                    {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+                                </View>
 
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Full Name<Text style={styles.required}>*</Text></Text>
-                        <TextInput
-                            style={[styles.input, errors.email && styles.inputError]}
-                            placeholder="Enter your full name"
-                            autoCapitalize="words"
-                            {...register("fullName")}
-                            onChangeText={(text) => setValue("fullName", text)}
-                            placeholderTextColor={'black'}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Password<Text style={styles.required}>*</Text></Text>
+                                    <TextInput
+                                        style={[styles.input, errors.email && styles.inputError]}
+                                        placeholder="Create your password"
+                                        secureTextEntry
+                                        {...register("password")}
+                                        onChangeText={(text) => setValue("password", text)}
+                                        placeholderTextColor={'#666'}
+                                    />
+                                    {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+                                </View>
 
-                        />
-                        {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
+                                <View style={styles.inputContainer}>
+                                    <Text style={styles.label}>Confirm Password<Text style={styles.required}>*</Text></Text>
+                                    <TextInput
+                                        style={[styles.input, errors.email && styles.inputError]}
+                                        {...register("confirmPassword")}
+                                        placeholder="Confirm your password"
+                                        secureTextEntry
+                                        onChangeText={(text) => setValue("confirmPassword", text)}
+                                        placeholderTextColor={'#666'}
+                                    />
+                                    {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
+                                </View>
 
+                                <TouchableOpacity style={styles.signUpButton} onPress={handleSubmit(onSubmit)}>
+                                    <Text style={styles.signUpButtonText}>Create Account</Text>
+                                </TouchableOpacity>
+
+                                <View style={styles.loginContainer}>
+                                    <Text style={styles.loginText}>Already have an account? </Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate(routeNames.login)}>
+                                        <Text style={styles.loginLink}>Sign In</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
                     </View>
-
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>
-                            Email Address<Text style={styles.required}>*</Text>
-                        </Text>
-                        <TextInput
-                            style={[styles.input, errors.email && styles.inputError]}
-                            placeholder="Enter your email"
-                            keyboardType="email-address"
-                            autoCapitalize="none"
-                            {...register("email")}
-                            onChangeText={(text) => setValue("email", text)}
-                            placeholderTextColor={'black'}
-
-                        />
-                        {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
-                    </View>
-
-
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Password<Text style={styles.required}>*</Text></Text>
-                        <TextInput
-                            style={[styles.input, errors.email && styles.inputError]}
-                            placeholder="Create your password"
-                            secureTextEntry
-                            {...register("password")}
-                            onChangeText={(text) => setValue("password", text)}
-                            placeholderTextColor={'black'}
-
-
-
-                        />
-                        {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
-
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Confirm Password<Text style={styles.required}>*</Text></Text>
-                        <TextInput
-                            style={[styles.input, errors.email && styles.inputError]}
-                            {...register("confirmPassword")}
-                            placeholder="Confirm your password"
-                            secureTextEntry
-                            onChangeText={(text) => setValue("confirmPassword", text)}
-                            placeholderTextColor={'black'}
-
-
-                        />
-                        {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
-
-                    </View>
-
-                    {/* <View style={styles.termsContainer}>
-                        <Text style={styles.termsText}>
-                            By signing up, you agree to our{' '}
-                            <Text style={styles.termsLink}>Terms of Service</Text>{' '}
-                            and{' '}
-                            <Text style={styles.termsLink}>Privacy Policy</Text>
-                        </Text>
-                    </View> */}
-
-                    <TouchableOpacity style={styles.signUpButton} onPress={handleSubmit(onSubmit)}>
-                        <Text style={styles.signUpButtonText}>Create Account</Text>
-                    </TouchableOpacity>
-
-                    {/* <Text style={styles.orText}>Or Continue With</Text>
-
-          <TouchableOpacity style={styles.googleButton}>
-            <Text style={styles.googleButtonText}>Sign Up With Google</Text>
-          </TouchableOpacity> */}
-
-                    <View style={styles.loginContainer}>
-                        <Text style={styles.loginText}>Already have an account? </Text>
-                        <TouchableOpacity onPress={() => navigation.navigate(routeNames.login)}>
-                            <Text style={styles.loginLink}>Sign In</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 };
@@ -156,122 +147,29 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
-    backButton: {
-        padding: 20,
+    keyboardAvoidingView: {
+        flex: 1,
     },
-    backButtonText: {
-        fontSize: 24,
-        color: '#666',
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
     },
     content: {
-        flex: 1,
-        paddingHorizontal: 20,
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 30,
-    },
-    formContainer: {
-        flex: 1,
-        paddingBottom: 30,
-    },
-    heading: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-    },
-    subheading: {
-        fontSize: 16,
-        color: '#666',
-        marginBottom: 30,
-    },
-    inputContainer: {
-        marginBottom: 20,
-    },
-    label: {
-        fontSize: 16,
-        color: '#333',
-        marginBottom: 8,
-    },
-    required: {
-        color: 'red',
-    },
-    input: {
-        backgroundColor: '#F5F8FF',
-        borderRadius: 8,
-        padding: 15,
-        fontSize: 16,
-    },
-    termsContainer: {
-        marginBottom: 20,
-    },
-    termsText: {
-        fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
-    },
-    termsLink: {
-        color: '#2B6FF3',
-    },
-    signUpButton: {
-        backgroundColor: '#2B6FF3',
-        borderRadius: 8,
-        padding: 16,
+        paddingHorizontal: width * 0.06,
+        paddingVertical: height * 0.02,
         alignItems: 'center',
-        marginTop: 10,
-    },
-    signUpButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    orText: {
-        textAlign: 'center',
-        color: '#666',
-        marginVertical: 20,
-    },
-    googleButton: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#ddd',
-    },
-    googleButtonText: {
-        color: '#333',
-        fontSize: 16,
-    },
-    loginContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 20,
-    },
-    loginText: {
-        color: '#666',
-        fontSize: 14,
-    },
-    loginLink: {
-        color: '#2B6FF3',
-        fontSize: 14,
-    },
-    inputError: {
-        borderColor: 'red',
-        borderWidth: 1,
-    },
-    errorText: {
-        color: 'red',
-        fontSize: 12,
-        marginTop: 5,
     },
     titleContainer: {
         flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: height * 0.03,
+        alignItems: 'center',
     },
     titleQatar: {
-        fontSize: 24,
+        fontSize: width * 0.08,
         fontWeight: 'bold',
         color: '#800020',
         textShadowColor: 'rgba(0, 0, 0, 0.15)',
@@ -279,12 +177,141 @@ const styles = StyleSheet.create({
         textShadowRadius: 2,
     },
     titleFollow: {
-        fontSize: 24,
+        fontSize: width * 0.08,
         fontWeight: 'bold',
         color: '#0047AB',
         textShadowColor: 'rgba(0, 0, 0, 0.15)',
         textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 2,
+    },
+    formShadowWrapper: {
+        maxWidth: width * 0.95,
+        minWidth: width * 0.85,
+        alignSelf: 'center',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.12,
+                shadowRadius: 16,
+            },
+            android: {
+                backgroundColor: '#f8f9fa',
+                borderRadius: 28,
+                borderWidth: 1,
+                borderColor: 'rgba(0,0,0,0.04)',
+            },
+        }),
+        marginBottom: 16,
+        borderRadius: 28,
+    },
+    formContainer: {
+        width: '100%',
+        minWidth: '100%',
+        maxWidth: '100%',
+        backgroundColor: '#fff',
+        borderRadius: 28,
+        padding: width * 0.05,
+        borderWidth: 1,
+        borderColor: '#ececec',
+        alignItems: 'center',
+    },
+    heading: {
+        fontSize: width * 0.06,
+        fontWeight: '700',
+        color: '#333',
+        marginBottom: height * 0.01,
+        textAlign: 'center',
+    },
+    subheading: {
+        fontSize: width * 0.04,
+        color: '#666',
+        marginBottom: height * 0.02,
+        textAlign: 'center',
+    },
+    inputContainer: {
+        width: '100%',
+        marginBottom: height * 0.015,
+        alignItems: 'center',
+    },
+    label: {
+        fontSize: width * 0.04,
+        color: '#333',
+        marginBottom: height * 0.008,
+        fontWeight: '500',
+        alignSelf: 'flex-start',
+        marginLeft: '4%',
+    },
+    required: {
+        color: 'red',
+        marginLeft: 4,
+    },
+    input: {
+        backgroundColor: '#F5F8FF',
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: '#E1E5EB',
+        width: '92%',
+        minWidth: 260,
+        maxWidth: 400,
+        minHeight: 48,
+    },
+    inputError: {
+        borderColor: '#FF3B30',
+        borderWidth: 1,
+    },
+    errorText: {
+        color: '#FF3B30',
+        fontSize: width * 0.035,
+        marginTop: height * 0.005,
+        textAlign: 'left',
+        alignSelf: 'flex-start',
+        marginLeft: '4%',
+    },
+    signUpButton: {
+        backgroundColor: '#2B6FF3',
+        borderRadius: 12,
+        padding: width * 0.04,
+        alignItems: 'center',
+        marginTop: height * 0.015,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#2B6FF3',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4.65,
+            },
+            android: {
+                elevation: 2,
+            },
+        }),
+        width: '98%',
+        minWidth: 280,
+        maxWidth: 500,
+        alignSelf: 'center',
+    },
+    signUpButtonText: {
+        color: '#fff',
+        fontSize: width * 0.045,
+        fontWeight: '600',
+    },
+    loginContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: height * 0.02,
+        width: '100%',
+    },
+    loginText: {
+        color: '#666',
+        fontSize: width * 0.035,
+    },
+    loginLink: {
+        color: '#2B6FF3',
+        fontSize: width * 0.035,
+        fontWeight: '600',
     },
 });
 

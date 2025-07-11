@@ -11,28 +11,11 @@ import IndiCatorLoading from '../components/IndiCatorLoading';
 
 export default function Navigation() {
     const Stack = createStackNavigator();
-    const [initialRoute, setInitialRoute] = useState<string | null>(null);
-
-    useEffect(() => {
-        const checkUser = async () => {
-            const userName = await getItem("userName");
-            setInitialRoute(userName ? routeNames.main : routeNames.login);
-        };
-        checkUser();
-    }, []);
-
-    if (initialRoute === null) {
-        return (
-            <>
-                <IndiCatorLoading />
-            </>
-        );
-    }
 
 
     return (
         <Stack.Navigator
-            initialRouteName={initialRoute}
+            initialRouteName={routeNames.main}
             screenOptions={{ headerShown: false }}
         >
             <Stack.Screen name={routeNames.login} component={SignInScreen

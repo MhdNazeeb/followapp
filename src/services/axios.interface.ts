@@ -1,6 +1,8 @@
 import axios from "axios";
 import { getItem } from "../utils/storage";
-const API_BASE_URL = "http://192.168.10.8:3005/v1/user"; 
+const API_BASE_URL = "http://192.168.10.8:3005/v1/user";  
+// const API_BASE_URL = "https://qatarfollow.xyz/v1/user"; 
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,

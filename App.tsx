@@ -14,6 +14,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import Colors from './src/Theme/Colors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PaperProvider } from 'react-native-paper';
 
 
 function App(): React.JSX.Element {
@@ -24,7 +25,9 @@ function App(): React.JSX.Element {
     <NavigationContainer >
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
+          <PaperProvider>
           <Navigation />
+          </PaperProvider>
         </GestureHandlerRootView>
         <Toast   />
       </QueryClientProvider>

@@ -11,20 +11,24 @@ import {
     Platform,
 } from 'react-native';
 import { Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { routeNames } from '../../../navgation/Screens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navgation/navigation.types';
 import { useNavigation } from '@react-navigation/native';
-import { getItem, removeItem } from '../../../utils/storage';
+import { clearStorage, getItem, removeItem } from '../../../utils/storage';
 import { formatDate } from '../../../utils/formateDate';
 import ArrowComponent from '../../../components/ArrowComponent';
-import { getWidth } from '../../../Theme/constens';
+import { getHeight, getWidth } from '../../../Theme/constens';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { whatsppMessage } from '../../../constance/constents';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ProfileScreen = () => {
     const navigation = useNavigation<NavigationProp>();
+    const insets = useSafeAreaInsets();
+    const TAB_BAR_HEIGHT = getHeight(13.5); 
 
     const [activeTab, setActiveTab] = useState('Profile');
     const [email, setEmail] = useState<string>('');
@@ -152,7 +156,7 @@ const ProfileScreen = () => {
             >
                 <ArrowComponent onPress={() => navigation.goBack()} />
             </TouchableOpacity>
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: insets.bottom + TAB_BAR_HEIGHT }}>
 
 
                 <View style={styles.header}>
@@ -176,9 +180,18 @@ const ProfileScreen = () => {
                             <Text style={styles.profileUsername}>{email}</Text>
                             <Text style={styles.profileJoined}>Joined {formatDate(userJoind)}</Text>
                         </View>
+                        {/* Show login button next to photo if not logged in */}
+                        {(!email || email === 'null' || email === '') && (
+                            <TouchableOpacity
+                                style={styles.loginButtonSide}
+                                onPress={() => navigation.replace(routeNames.login)}
+                            >
+                                <Text style={styles.loginButtonText}>Login</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
 
-                    <TouchableOpacity style={styles.editButton} onPress={() => openWhatsApp('+9166707645', 'Hello, this is a test message!')} >
+                    <TouchableOpacity style={styles.editButton} onPress={() => openWhatsApp('+97466707645', whatsppMessage)} >
                         <Text style={styles.editButtonText}>
                             Post Your Job
                         </Text>
@@ -203,6 +216,7 @@ const ProfileScreen = () => {
                 {renderContent()}
                 <TouchableOpacity style={styles.logoutButton} onPress={() => {
                     removeItem("userName")
+                    clearStorage()
                     navigation.replace(routeNames.login)
                 }}>
                     <Text style={styles.logoutButtonText}>Log Out</Text>
@@ -382,6 +396,32 @@ const styles = StyleSheet.create({
     logoutButtonText: {
         color: '#1a73e8',
         fontSize: 14,
+    },
+    loginButton: {
+        backgroundColor: '#1a73e8',
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 20,
+        marginBottom: 0,
+    },
+    loginButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    loginButtonSide: {
+        backgroundColor: '#1a73e8',
+        paddingVertical: 8,
+        paddingHorizontal: 18,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 10,
+        alignSelf: 'center',
+        height: 36,
     },
 });
 
