@@ -18,6 +18,8 @@ import { PaperProvider } from 'react-native-paper';
 import { getWidth } from './src/Theme/constens';
 import { toastConfig } from './src/components/CustomToast';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import mobileAds from 'react-native-google-mobile-ads';
+
 
 
 
@@ -32,7 +34,13 @@ function App(): React.JSX.Element {
   // });
   // }, []);
 
-
+  useEffect(() => {
+    mobileAds()
+    .setRequestConfiguration({
+      testDeviceIdentifiers: ['EMULATOR'],
+    })
+    .then(() => mobileAds().initialize());  
+  }, []);
 
   return (
 

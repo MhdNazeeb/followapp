@@ -17,7 +17,7 @@ const MemoHomeIcon = React.memo(HomeIcon);
 const MemoSavedIcon = React.memo(SavedIcon);
 const MemoProfileIcon = React.memo(ProfileIcon);
 
-const TAB_BAR_HEIGHT = getHeight(13.5);
+const TAB_BAR_HEIGHT = Platform.OS == "android" ? getHeight(13.5) : getHeight(22.5);
 
 const CustomBottomBar = ({ state, descriptors, navigation }: any) => {
   const insets = useSafeAreaInsets();
