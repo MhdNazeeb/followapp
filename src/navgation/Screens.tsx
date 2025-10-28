@@ -8,7 +8,9 @@ export type RouteNameType = {
   signUp: 'SignUp';
   profile: 'Profile';
   jobDetails: 'JobDetails';
-  search:"Search"
+  search: "Search",
+  forgotPassword: 'ForgotPassword';
+  fullImage: "FullImage",
 
 };
 
@@ -21,5 +23,8 @@ export const routeNames: RouteNameType = {
   signUp: 'SignUp',
   profile: 'Profile',
   jobDetails: 'JobDetails',
-  search:"Search"
+  search: "Search",
+  forgotPassword: "ForgotPassword",
+  fullImage: "FullImage",
+
 };

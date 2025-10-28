@@ -1,46 +1,96 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Animated,
-  Platform,
-  Dimensions,
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 
 import { useJobs } from '../../../services/api/useGetJobs';
 import JobCard from '../../../components/JobCard';
 import Header from '../../../components/Header';
-import { useSearchJob } from '../../../services/api/useSearchJob';
 import { getHeight, getWidth } from '../../../Theme/constens';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import LoginPromptModal from '../../../components/LoginPromptModal';
 import { useNavigation } from '@react-navigation/native';
 import { routeNames } from '../../../navgation/Screens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navgation/navigation.types';
 import { Portal } from 'react-native-paper';
+import JobCardSkeleton from '../../../components/skelton/JobCardSkeleton';
+import { LegendList } from "@legendapp/list"
+
 
 const HomeScreen = () => {
-  const { data: jobs, refetch, isLoading } = useJobs();
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const insets = useSafeAreaInsets();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useJobs(20);
 
-  // Calculate proper bottom padding to account for the tab bar
-  const TAB_BAR_HEIGHT = 0; // Estimate of your tab bar height
-  const bottomPadding = Platform.OS === 'ios' ?
-    TAB_BAR_HEIGHT + insets.bottom :
-    TAB_BAR_HEIGHT;
-
-  // Calculate the content padding from the top based on header height
-  const contentPaddingTop = getHeight(5.50);
-
-  // Add state for login modal
   const [showLoginModal, setShowLoginModal] = useState(false);
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const jobs = useMemo(() => {
+    return data?.pages.flatMap((page) => page.jobs) ?? [];
+  }, [data]);
+
+  const handleShowLoginModal = useCallback(() => setShowLoginModal(true), []);
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
+
+  const renderFooter = () => {
+    if (!isFetchingNextPage) return null;
+
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#6366f1" />
+        <Text style={styles.footerText}>Loading more jobs...</Text>
+      </View>
+    );
+  };
+
+  const renderEmpty = () => {
+    if (isLoading) {
+      return (
+        <View>
+          {[...Array(4)].map((_, idx) => (
+            <JobCardSkeleton key={idx} />
+          ))}
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No jobs found</Text>
+      </View>
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      {/* <InAppUpdate /> */}
+
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
+
       <Portal>
         <LoginPromptModal
           visible={showLoginModal}
@@ -51,48 +101,38 @@ const HomeScreen = () => {
           }}
         />
       </Portal>
-      {/* Glassmorphism Header with scroll blur effect */}
-      <Header
-        screen="home"
-        scrollY={scrollY}
-      />
 
-      <Animated.FlatList
+      <Header screen="home" />
+
+      <LegendList
         contentContainerStyle={[
           {
-            paddingTop: contentPaddingTop,
-            flexGrow: 1,
             justifyContent: 'center',
-            paddingLeft:getWidth(23)
-          }
+            paddingTop: getHeight(4),
+          },
         ]}
         showsVerticalScrollIndicator={false}
-        data={jobs || []}
-        keyExtractor={(item) => item?._id}
-        renderItem={({ item }) => <JobCard job={item} screen="home" setShowLoginModal={setShowLoginModal} />}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: false }
+        data={jobs}
+        keyExtractor={(item: any) => item?._id}
+        renderItem={({ item }: any) => (
+          <JobCard
+            job={item}
+            screen="home"
+            setShowLoginModal={handleShowLoginModal}
+          />
         )}
-        scrollEventThrottle={1}
-        initialNumToRender={5}
-        maxToRenderPerBatch={5}
-        windowSize={7}
-        removeClippedSubviews={true}
-        ListEmptyComponent={
-          isLoading ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.loadingText}>Loading jobs...</Text>
-            </View>
-          ) : (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No jobs found</Text>
-            </View>
-          )
-        }
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
+        onRefresh={handleRefresh}
+        refreshing={isRefetching}
+        scrollEventThrottle={16}
+        recycleItems={true}
+        initialScrollIndex={0}
       />
 
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -101,7 +141,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f7fa',
   },
- 
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -109,14 +148,20 @@ const styles = StyleSheet.create({
     padding: 32,
     marginTop: getHeight(20),
   },
-  loadingText: {
-    fontSize: 16,
-    color: '#666',
-  },
   emptyText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footerText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
   },
 });
 

@@ -11,6 +11,8 @@ import { toastSuccess } from "../../utils/toast";
 type data_type = {
     jobid: string,
     userid: string
+    status:boolean
+    
 }
 const savedJobs = async (data: data_type): Promise<any[]> => {
     const response: AxiosResponse<any> = await api.post('saved_jobs', { data })

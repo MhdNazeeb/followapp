@@ -1,7 +1,7 @@
 import React from "react";
 import Svg, { Path, G } from "react-native-svg";
 
-const ColorSaved = ({ width = 20, height = 20, fill = "#000" }) => {
+const ColorSaved = ({ width = 20, height = 20, fill = "#FF0000" }) => {
   return (
     <Svg width={width} height={height} viewBox="0 0 503.876 503.876" fill={fill}>
       <G>

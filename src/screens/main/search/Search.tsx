@@ -166,7 +166,7 @@ const Search = () => {
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item?._id?.toString() || Math.random().toString()}
-                        renderItem={({ item }) => <JobCard job={item} screen='' />}
+                        renderItem={({ item }) => <JobCard job={item} screen='search' />}
                         contentContainerStyle={styles.listContainer}
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"

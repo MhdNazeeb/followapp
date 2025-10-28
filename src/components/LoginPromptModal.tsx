@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Colors from '../Theme/Colors';
 
 interface LoginPromptModalProps {
   visible: boolean;
@@ -21,12 +22,12 @@ const LoginPromptModal: React.FC<LoginPromptModalProps> = ({ visible, onCancel, 
           <Text style={styles.message}>
             You need to log in to save jobs. Would you like to log in now?
           </Text>
-          
+
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.loginButton} onPress={onLogin}>
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    backgroundColor: '#0057b8',
+    backgroundColor: Colors.primary,
     marginLeft: 6,
   },
   loginButtonText: {

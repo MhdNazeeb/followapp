@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, Platform, TouchableOpacity, Touchable, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Header from '../../../components/Header'
@@ -13,15 +13,13 @@ import { useNavigation } from '@react-navigation/native';
 import { routeNames } from '../../../navgation/Screens';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../navgation/navigation.types';
+import { Button } from 'react-native-paper'
+import Colors from '../../../Theme/Colors'
 
 
 const SavedList = () => {
   const [userid, setUserId] = useState<string>('');
-  const insets = useSafeAreaInsets();
-  const TAB_BAR_HEIGHT = 68;
-  const bottomPadding = Platform.OS === 'ios' ? 
-  TAB_BAR_HEIGHT + insets.bottom : 
-  TAB_BAR_HEIGHT;
+
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -37,9 +35,7 @@ const SavedList = () => {
   }, []);
 
   useEffect(() => {
-    console.log('jobs', jobs);
     if (jobs) {
-      console.log('jobs', isLoading);
       setSavedJobs(jobs?.savedJobs);
     }
   }, [jobs]);
@@ -47,7 +43,7 @@ const SavedList = () => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={{
         maxWidth: getWidth(1), minHeight: getHeight(15), marginTop: getWidth(20)
       }}>
@@ -55,42 +51,44 @@ const SavedList = () => {
       </View>
 
       {/* First Job Card */}
-      <View style={{ flex: 1 }}>
-        {savedJobs && savedJobs.length > 0 ? (
-          <FlatList
-            data={savedJobs}
-            keyExtractor={(item) => item?._id}
-            renderItem={({ item }) => <JobCard job={item} screen='saved'  />}
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={5}
-            maxToRenderPerBatch={5}
-            windowSize={7}
-            removeClippedSubviews={true}
-            contentContainerStyle={[
-              { 
-                paddingBottom: bottomPadding ,
-                justifyContent: 'center',
-              }
-            ]}
-          />
-          
-        ) : (
-          <View style={[CommonStyles.centerContainer]}>
-            {(!userid || userid === 'null' || userid === '') ? (
-              <TouchableOpacity
-                style={styles.loginButton}
-                onPress={() => navigation.navigate(routeNames.login)}
-              >
-                <Text style={styles.loginButtonText}>Login to view saved jobs</Text>
-              </TouchableOpacity>
-            ) : (
-              <Text>Empty no Data</Text>
-            )}
-          </View>
-        )}
-      </View>
-         
-            
+
+      {savedJobs && savedJobs.length > 0 ? (
+        <FlatList
+          data={savedJobs}
+          keyExtractor={(item) => item?._id}
+          renderItem={({ item }) => <JobCard job={item} screen='saved' />}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={5}
+          maxToRenderPerBatch={5}
+          windowSize={7}
+          removeClippedSubviews={true}
+          contentContainerStyle={[
+            {
+              justifyContent: 'center',
+            }
+          ]}
+        />
+
+      ) : (
+        <View style={[CommonStyles.centerContainer]}
+
+        >
+          {(!userid || userid === 'null' || userid === '') ? (
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => navigation.navigate(routeNames.login)}
+
+            >
+              <Text style={styles.loginButtonText}>Login to view saved jobs</Text>
+            </TouchableOpacity>
+          ) : (
+            <Text>Empty no Data</Text>
+          )}
+        </View>
+      )}
+
+
+
     </SafeAreaView>
   )
 }
@@ -101,13 +99,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    padding:getWidth(23)
+    paddingTop: getWidth(23),
+    paddingHorizontal: getWidth(23)
+
   },
   jobList: {
     flex: 1,
   },
   loginButton: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: Colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 8,

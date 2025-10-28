@@ -1,17 +1,23 @@
 interface ColorsType {
-    primery: string;
+    primary: string;
     secondery: string;
     textPrimery: string;
     textSecondery: string;
     Tertiary: string
+    white:string
+    black:string
+    blue:string
 };
 const Colors: ColorsType = {
     // Tertiary: "#c0392b",
-    secondery: "#00007f",
-    primery: "#8A1538",
+    secondery: "#871ffe",
+    primary: "#7c3aed",
     textPrimery: "#220e24",
     textSecondery: "#3498db",
-    Tertiary:"yellow"
+    Tertiary:"yellow",
+    white:"white",
+    black:"black",
+    blue:"#0000FF",
 
 }
 export default Colors

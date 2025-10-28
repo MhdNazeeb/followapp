@@ -20,6 +20,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schema } from '../../../utils/yup';
 import useSignup from '../../../services/api/useSignup';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Colors from '../../../Theme/Colors';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -76,7 +77,8 @@ const SignUpScreen = () => {
                                         autoCapitalize="words"
                                         {...register("fullName")}
                                         onChangeText={(text) => setValue("fullName", text)}
-                                        placeholderTextColor={'#666'}
+                                        placeholderTextColor={Colors.black}
+                                        
                                     />
                                     {errors.fullName && <Text style={styles.errorText}>{errors.fullName.message}</Text>}
                                 </View>
@@ -92,8 +94,8 @@ const SignUpScreen = () => {
                                         autoCapitalize="none"
                                         {...register("email")}
                                         onChangeText={(text) => setValue("email", text)}
-                                        placeholderTextColor={'#666'}
-                                    />
+                                        placeholderTextColor={Colors.black}
+                                        />
                                     {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
                                 </View>
 
@@ -105,8 +107,8 @@ const SignUpScreen = () => {
                                         secureTextEntry
                                         {...register("password")}
                                         onChangeText={(text) => setValue("password", text)}
-                                        placeholderTextColor={'#666'}
-                                    />
+                                        placeholderTextColor={Colors.black}
+                                        />
                                     {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
                                 </View>
 
@@ -118,8 +120,8 @@ const SignUpScreen = () => {
                                         placeholder="Confirm your password"
                                         secureTextEntry
                                         onChangeText={(text) => setValue("confirmPassword", text)}
-                                        placeholderTextColor={'#666'}
-                                    />
+                                        placeholderTextColor={Colors.black}
+                                        />
                                     {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>}
                                 </View>
 

@@ -15,5 +15,6 @@
     jobsStatus?: boolean;
     location?:string
     saved?:boolean
+    jobId?: string; 
 };
 

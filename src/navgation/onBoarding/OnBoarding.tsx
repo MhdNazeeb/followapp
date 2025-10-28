@@ -5,18 +5,20 @@ import Home from '../../screens/main/home/Home';
 import TabNavigation from '../tabs/TabNavigation';
 import { routeNames } from '../Screens';
 import { SignInScreen, SignUpScreen } from '../../screens';
+import ForgotPasswordScreen from '../../screens/onBoarding/ResetPassword/ResetPassword';
 
 
 export default function OnBoarding() {
     const Stack = createStackNavigator();
 
     return (
-        <Stack.Navigator 
-            
+        <Stack.Navigator
+
             screenOptions={{ headerShown: false }}
         >
-            <Stack.Screen name={routeNames.login} component={SignInScreen} /> 
-            <Stack.Screen name={routeNames.signUp} component={SignUpScreen} /> 
+            <Stack.Screen name={routeNames.login} component={SignInScreen} />
+            <Stack.Screen name={routeNames.signUp} component={SignUpScreen} />
+            <Stack.Screen name={routeNames.forgotPassword} component={ForgotPasswordScreen} />
 
         </Stack.Navigator>
 

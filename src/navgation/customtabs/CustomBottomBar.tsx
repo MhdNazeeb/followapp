@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, TouchableNativeFeedback, Platform, useWindowDimensions } from 'react-native';
+import React, { useRef, useEffect, memo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, TouchableNativeFeedback, Platform, useWindowDimensions, StatusBar } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '../../Theme/Colors';
 import HomeIcon from '../../assets/icons/HomeIcon';
@@ -9,7 +9,7 @@ import ProfileIcon from '../../assets/icons/ProfileIcon';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlurView } from '@react-native-community/blur';
 import { TouchableRipple } from 'react-native-paper';
-import { getHeight } from '../../Theme/constens';
+import { getHeight, getWidth, lightenColor } from '../../Theme/constens';
 import { Haptics } from '../../utils/Haptics';
 
 // Memoize icons for performance
@@ -25,64 +25,94 @@ const CustomBottomBar = ({ state, descriptors, navigation }: any) => {
   const tabCount = state.routes.length;
   const tabWidth = width / tabCount;
 
-  // Animated value for pill indicator
+  // Responsive scaling
+  const scale = (size: number) => (width / 375) * size;
+
+  // Function to render tab content (no animation)
+  const renderTabContent = (route: any, isFocused: boolean) => {
+    return (
+      <>
+        <View style={{
+          marginBottom: scale(2),
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          {route.name === routeNames.home ? (
+            <MemoHomeIcon width={scale(20)} height={scale(20)} fill={isFocused ? lightenColor(Colors.primary, 1) : lightenColor(Colors.black, 12)
+            } />
+          ) : (
+            route.name === routeNames.saved_list ? <MemoSavedIcon height={scale(20)} width={scale(20)} color={isFocused ? lightenColor(Colors.primary, 1) : lightenColor(Colors.black, 12)} /> : <MemoProfileIcon height={scale(20)} width={scale(20)} color={isFocused ? lightenColor(Colors.primary, 1) : lightenColor(Colors.black, 12)
+            } />
+          )}
+          <Text
+            style={{
+              color: isFocused ? lightenColor(Colors.primary, 1) : lightenColor(Colors.black, 12)
+              ,
+              fontSize: scale(11),
+              fontWeight: isFocused ? 'bold' : '500',
+              marginTop: scale(1),
+              letterSpacing: 0.2,
+            }}>
+            {route.name}
+          </Text>
+        </View>
+
+      </>
+    );
+  };
+
   const indicatorAnim = useRef(new Animated.Value(state.index)).current;
 
   useEffect(() => {
     Animated.spring(indicatorAnim, {
       toValue: state.index,
-      useNativeDriver: true, // Use native driver for transform
+      useNativeDriver: true,
       speed: 16,
       bounciness: 8,
     }).start();
   }, [state.index]);
 
-  // Responsive scaling
-  const scale = (size: number) => (width / 375) * size;
-
-  // Function to render tab content
-  const renderTabContent = (route: any, isFocused: boolean) => {
-    return (
-      <>
-        <Animated.View style={{
-          transform: [{ scale: isFocused ? 1.18 : 1 }],
-          marginBottom: scale(2),
-        }}>
-          {route.name === routeNames.home ? (
-            <MemoHomeIcon width={scale(20)} height={scale(20)} fill={isFocused ? Colors.primery : '#B0B0B0'} />
-          ) : (
-            route.name === routeNames.saved_list ? <MemoSavedIcon height={scale(20)} width={scale(20)} color={isFocused ? Colors.primery : '#B0B0B0'} /> : <MemoProfileIcon height={scale(20)} width={scale(20)} color={isFocused ? Colors.primery : '#B0B0B0'} />
-          )}
-        </Animated.View>
-        <Animated.Text
-          style={{
-            color: isFocused ? Colors.primery : '#B0B0B0',
-            fontSize: scale(11),
-            fontWeight: isFocused ? 'bold' : '500',
-            transform: [{ scale: isFocused ? 1.08 : 1 }],
-            marginTop: scale(1),
-            letterSpacing: 0.2,
-          }}>
-          {route.name}
-        </Animated.Text>
-      </>
-    );
-  };
-
-
-
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {
           height: TAB_BAR_HEIGHT + insets.bottom
-          // paddingBottom: insets.bottom,
         }
       ]}
-      edges={['bottom']}
     >
-      {/* <BarBackground /> */}
+      <StatusBar backgroundColor={"transparent"} barStyle={'dark-content'} />
+
+      <Animated.View
+        style={[
+          styles.pill,
+          {
+            width: tabWidth * 0.7,
+
+            // height: 55,
+            borderRadius: getWidth(20),
+            backgroundColor: lightenColor(Colors.primary, 95),
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            transform: [
+              {
+                translateX: indicatorAnim.interpolate({
+                  inputRange: [0, state.routes.length - 1],
+                  outputRange: [tabWidth * 0.15, tabWidth * (state.routes.length - 1 + 0.15)],
+                }),
+              },
+            ],
+            // elevation: 10,
+            borderWidth: 1,
+            // opacity: 0.92,
+            borderColor: 'rgba(0,0,0,0.06)',
+
+            zIndex: 0,
+          },
+        ]}
+      />
       {state.routes.map((route: any, index: any) => {
         const { options } = descriptors[route.key];
         const label =
@@ -106,7 +136,7 @@ const CustomBottomBar = ({ state, descriptors, navigation }: any) => {
             navigation.navigate(route.name);
           }
         };
-        
+
 
         const onLongPress = () => {
           navigation.emit({
@@ -115,83 +145,7 @@ const CustomBottomBar = ({ state, descriptors, navigation }: any) => {
           });
         };
 
-        // Use TouchableNativeFeedback for Android and TouchableOpacity for iOS
-        if (Platform.OS === 'android') {
-          return (
-            <TouchableNativeFeedback
-              key={route.name}
-              onPress={onPress}
-              onLongPress={onLongPress}
-              background={TouchableNativeFeedback.Ripple('rgba(42, 79, 255, 0.08)', false)}
-              useForeground={true}
-            >
-              <View
-                style={[
-                  styles.tab,
-                  {
-                    width: tabWidth,
-                    zIndex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: scale(22),
-                    overflow: 'hidden',
-                  },
-                ]}
-                accessibilityRole="button"
-                accessibilityState={isFocused ? { selected: true } : {}}
-                accessibilityLabel={options.tabBarAccessibilityLabel}
-                testID={options.tabBarTestID}
-              >
-                {isFocused ? (
-                  <View
-                    style={{
-                      width: tabWidth * 0.7,
-                      height: scale(44),
-                      borderRadius: scale(22),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      position: 'relative',
-                    }}
-                  >
-                    <Animated.View
-                      style={[
-                        styles.pill,
-                        {
-                          width: tabWidth * 0.7,
-                          height: scale(44),
-                          borderRadius: scale(22),
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          backgroundColor: '#fff',
-                          elevation: 10,
-                          borderWidth: 1,
-                          opacity: 0.92,
-                          borderColor: 'rgba(255, 255, 255, 0.06)',
-                          shadowColor: Colors.primery,
-                          shadowOpacity: 0.16,
-                          shadowRadius: 16,
-                          shadowOffset: { width: 0, height: 4 },
-                          zIndex: 0,
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        },
-                      ]}
-                    />
-                    <View style={{ zIndex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                      {renderTabContent(route, isFocused)}
-                    </View>
-                  </View>
-                ) : (
-                  renderTabContent(route, isFocused)
-                )}
-              </View>
-            </TouchableNativeFeedback>
-          );
-        }
 
-        // iOS fallback using TouchableOpacity with opacity feedback
         return (
           <TouchableOpacity
             key={route.name}
@@ -205,57 +159,18 @@ const CustomBottomBar = ({ state, descriptors, navigation }: any) => {
             activeOpacity={0.6}
             style={[styles.tab, { width: tabWidth, zIndex: 1, justifyContent: 'center', alignItems: 'center', overflow: 'visible' }]}
           >
-            {isFocused ? (
-              <View style={{
-                width: tabWidth * 0.7,
-                height: scale(44),
-                borderRadius: scale(22),
-                justifyContent: 'center',
-                alignItems: 'center',
-                position: 'relative',
-              }}>
-                <Animated.View
-                  style={[
-                    styles.pill,
-                    {
-                      width: tabWidth * 0.7,
-                      height: scale(44),
-                      borderRadius: scale(22),
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      paddingVertical: scale(10),
-                      shadowColor: Colors.primery,
-                      shadowOpacity: 0.16,
-                      shadowRadius: 16,
-                      shadowOffset: { width: 0, height: 4 },
-                      elevation: 10,
-                      opacity: 0.92,
-                      borderWidth: 1,
-                      borderColor: 'rgba(0,0,0,0.06)',
-                      backgroundColor: '#fff',
-                      zIndex: 0,
-                    },
-                  ]}
-                />
-                <View style={{ zIndex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  {renderTabContent(route, isFocused)}
-                </View>
-              </View>
-            ) : (
-              renderTabContent(route, isFocused)
-            )}
+            {renderTabContent(route, isFocused)}
           </TouchableOpacity>
         );
       })}
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'transparent',
+    backgroundColor: 'white',
     borderTopWidth: 0,
     justifyContent: 'center',
     alignItems: 'center',

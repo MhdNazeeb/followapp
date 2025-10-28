@@ -3,6 +3,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import api from "../axios.interface";
 import { LoginCredentials, LoginResponse } from "../../types/login";
 import { setItem, setMultipleItems } from "../../utils/storage";
+import { toastError } from "../../utils/toast";
 
 
 
@@ -16,16 +17,17 @@ const useLogin = () => {
     const mutation = useMutation<LoginResponse, AxiosError, LoginCredentials>({
         mutationFn: login,
         onSuccess: async (data) => {
+            
             await setMultipleItems({
                 token: data?.token,
                 userName: data?.name,
                 userId: data?.id,
                 email: data?.email,
-                joind: data?.joind
+                joind: data?.joined
             });
         },
         onError: (error) => {
-            console.log(error, 'hiiiii099');
+            toastError(error)
         },
     });
 

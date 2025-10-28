@@ -1,302 +1,346 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import React from 'react'
 import { JobData } from '../types/JobData'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navgation/navigation.types';
 import { useNavigation } from '@react-navigation/native';
 import { routeNames } from '../navgation/Screens';
 import { formatDate } from '../utils/formateDate';
-import Company from '../assets/icons/Company';
-import LocationIcon from '../assets/icons/LocationIcon';
-import MoneyIcon from '../assets/icons/MoneyIcon';
+import { MaterialIcons } from '@react-native-vector-icons/material-icons';
 import { getItem } from '../utils/storage';
 import useSavedJobs from '../services/api/useSavedJobs';
-import Saved from '../assets/icons/Saved';
-import ColorSaved from '../assets/icons/ColorSaved';
-import { getHeight, getWidth } from '../Theme/constens';
+import { getColorByLetter, getHeight, getWidth } from '../Theme/constens';
+import { Haptics } from '../utils/Haptics';
 import LinearGradient from 'react-native-linear-gradient';
+import Colors from '../Theme/Colors';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
+    withSpring,
     withTiming,
-    withSequence,
-    FadeIn,
-    interpolateColor,
-    withRepeat,
-    Easing,
+    Easing
 } from 'react-native-reanimated';
-import { Haptics } from '../utils/Haptics';
-import LoginPromptModal from './LoginPromptModal';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-
-
-const JobCard = ({ job, screen = '',setShowLoginModal }: { job: JobData, screen: string ,setShowLoginModal?:any}) => {
+const JobCard = ({ job, screen = '', setShowLoginModal }: { job: JobData, screen: string, setShowLoginModal?: any }) => {
     const navigation = useNavigation<NavigationProp>()
-    const { saved_jobs, isError, isPending } = useSavedJobs()
+    const { saved_jobs } = useSavedJobs()
 
+    // Reanimated shared values
+    const scale = useSharedValue(1);
+    const opacity = useSharedValue(0);
 
-
-
-    const handleSaved = async () => {
+    const handleSaved = async (status: boolean) => {
         Haptics.success()
-        // Animate heart icon on tap
-        heartScale.value = withSequence(
-            withTiming(1.2, { duration: 150 }),
-            withTiming(1, { duration: 150 })
-        );
         const userid = await getItem<string>('userId')
         const jobid = job?._id
 
         if (!userid) {
-            setShowLoginModal(true);
+            setShowLoginModal && setShowLoginModal(true);
             return;
         }
         if (userid && jobid) {
-            const data = await saved_jobs({ userid, jobid })
+            await saved_jobs({ userid, jobid, status })
         }
     }
 
-    // Use Reanimated shared values for animations
-    const colorProgress = useSharedValue(0);
-  
-    const heartScale = useSharedValue(1);
-    const tagScale = useSharedValue(1);
+    const handlePressIn = () => {
+        scale.value = withSpring(0.30, {
+            damping: 15,
+            stiffness: 150,
+        });
+        opacity.value = withTiming(0.3, {
+            duration: 200,
+            easing: Easing.ease,
+        });
+    };
 
-    // Restore animated background color effect
-    useEffect(() => {
-        colorProgress.value = withRepeat(
-            withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
-            -1, // Infinite repetitions
-            true // Reverse
-        );
-    }, []);
+    const handlePressOut = () => {
+        scale.value = withSpring(1, {
+            damping: 15,
+            stiffness: 150,
+        });
+        opacity.value = withTiming(0, {
+            duration: 200,
+            easing: Easing.ease,
+        });
+    };
 
-    const animatedBackgroundStyle = useAnimatedStyle(() => {
-        const backgroundColor = interpolateColor(
-            colorProgress.value,
-            [0, 0.33, 0.66, 1],
-            [
-                '#FF69B4', 
-                '#1E90FF',
-                '#DA70D6',
-                '#FF69B4'  
-            ]
-        );
-        return { backgroundColor };
-    });
-
-   
-
-
-
-    const heartStyle = useAnimatedStyle(() => {
+    // Animated styles
+    const animatedCardStyle = useAnimatedStyle(() => {
         return {
-            transform: [{ scale: heartScale.value }]
+            transform: [{ scale: scale.value }],
         };
     });
 
-    const tagStyle = useAnimatedStyle(() => {
+    const animatedOverlayStyle = useAnimatedStyle(() => {
         return {
-            transform: [{ scale: tagScale.value }]
+            opacity: opacity.value,
         };
     });
-
-    useEffect(() => {
-        console.log(job, screen, 'both are checking');
-    }, [])
 
     return (
-        <View
-            style={styles.jobCard}
-            // entering={FadeIn.duration(400).delay(100).springify()}
-        >
-            {/* Login Modal */}
-         
-            <TouchableOpacity onPress={() => {
-                navigation.navigate(routeNames.jobDetails, { jobid: job?._id });
-                Haptics.success()
-            }
-            }>
+        <Animated.View style={[styles.jobCard, animatedCardStyle]}>
+            <TouchableOpacity
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                onPress={() => {
+                    navigation.navigate(routeNames.jobDetails, {
+                        jobid: `${screen == "home" || screen == "search" ? job._id : job.jobId}`
+                    });
+                    Haptics.success()
+                }}
+                activeOpacity={1}
+            >
+                {/* Gradient overlay on press */}
+                <Animated.View style={[styles.gradientOverlay, animatedOverlayStyle]} pointerEvents="none">
+                    <LinearGradient
+                        colors={['rgba(139, 92, 246, 0.2)', 'rgba(168, 85, 247, 0.2)']}
+                        style={StyleSheet.absoluteFill}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                    />
+                </Animated.View>
+
                 <View style={styles.jobCardContent}>
-                    <Animated.View
-                        style={[
-                            styles.container,
-                            { width: 50, height: 50 },
-                            animatedBackgroundStyle
-                        ]}
-                    >
-                        <Text style={styles.text}>{job?.companyName[0]}</Text>
-                    </Animated.View>
+                    {/* Company Logo with enhanced styling */}
+                    <View style={styles.logoWrapper}>
+                        <View style={styles.logoContainer}>
+                            <LinearGradient
+                                colors={getColorByLetter(job?.jobTitle?.[0] ?? "A")}
+                                style={StyleSheet.absoluteFill}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                            />
+                            <Text style={styles.logoText}>
+                                {job?.companyName?.[0]?.toUpperCase() || 'C'}
+                            </Text>
+                        </View>
+                    </View>
 
                     <View style={styles.jobInfoContainer}>
-                        <View style={styles.jobDetailsContainer}>
-                            <View style={styles.detailItem}>
-                                <Company width={20} height={20} />
-                                <Text style={[styles.detailText, { fontSize: getWidth(32.5), fontWeight: "bold" }]}>{job?.jobTitle}</Text>
+                        {/* Job Title with better typography */}
+                        <View style={styles.titleContainer}>
+                            <Text style={styles.jobTitle} numberOfLines={2}>
+                                {job?.jobTitle}
+                            </Text>
+                        </View>
+
+                        {/* Company Name with icon background */}
+                        <View style={styles.detailItem}>
+                            <View style={[styles.iconWrapper, { backgroundColor: '#F5F3FF' }]}>
+                                <MaterialIcons name="business" size={12} color="#7C3AED" />
                             </View>
+                            <Text style={styles.detailText} numberOfLines={1}>
+                                {job?.companyName}
+                            </Text>
+                        </View>
+
+                        {/* Location and Time in a row */}
+                        <View style={styles.infoRow}>
                             <View style={styles.detailItem}>
-                                <Company width={20} height={10} />
-                                <Text style={styles.detailText}>{job?.companyName}</Text>
+                                <View style={[styles.iconWrapper, { backgroundColor: '#EDE9FE' }]}>
+                                    <MaterialIcons name="location-on" size={12} color="#7C3AED" />
+                                </View>
+                                <Text style={styles.detailText}>Qatar</Text>
                             </View>
+
                             <View style={styles.detailItem}>
-                                <LocationIcon width={20} height={10} />
-                                <Text style={styles.detailText}>{"Qatar"}</Text>
-                            </View>
-                            <View style={styles.detailItem}>
-                                <MoneyIcon width={20} height={10} />
-                                <Text style={styles.detailText}>{"standard"}</Text>
+                                <View style={[styles.iconWrapper, { backgroundColor: '#DBEAFE' }]}>
+                                    <MaterialIcons name="access-time" size={12} color="#7C3AED" />
+                                </View>
+                                <Text style={styles.detailText}>
+                                    {formatDate(job?.createdAt ?? null)}
+                                </Text>
                             </View>
                         </View>
 
-                        <View style={styles.cardFooter}>
-                            {screen == "home" &&
-                                <TouchableOpacity onPress={handleSaved} hitSlop={10}>
-                                    <Animated.View style={heartStyle}>
-                                        {!job?.saved ? <Saved /> : <ColorSaved />}
-                                    </Animated.View>
-                                </TouchableOpacity>
-                            }
+                        {/* Job Description (only on home screen) */}
+                        {screen === "home" && job?.jobDescription && (
+                            <Text style={styles.jobDescription} numberOfLines={2}>
+                                {job.jobDescription}
+                            </Text>
+                        )}
 
-                            <View style={styles.tagsContainer}>
-                                <Animated.View style={[styles.tagType, tagStyle]}>
-                                    <Text style={styles.tagTypeText}>{job?.jobType}</Text>
-                                </Animated.View>
-                                <Animated.View style={[styles.tagPosted, tagStyle]}>
-                                    <Text style={styles.tagPostedText}>{formatDate(job?.createdAt ?? null)}</Text>
-                                </Animated.View>
+                        {/* Footer with job type and action */}
+                        <View style={styles.cardFooter}>
+                            <View style={styles.jobTypeBadge}>
+                                <LinearGradient
+                                    colors={['#EDE9FE', '#DDD6FE']}
+                                    style={StyleSheet.absoluteFill}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                />
+                                <Text style={styles.jobTypeText}>{job?.jobType}</Text>
+                            </View>
+
+                            <View style={styles.actionContainer}>
+                                <Text style={styles.viewDetailsText}>Details</Text>
+                                <MaterialIcons name="arrow-forward" size={16} color="#7C3AED" />
                             </View>
                         </View>
                     </View>
                 </View>
+
+                {/* Save Button - Absolutely positioned */}
+                {screen === "home" && (
+                    <TouchableOpacity
+                        onPress={() => handleSaved(job?.saved ?? false)}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        style={styles.saveButton}
+                    >
+                        <View style={styles.saveButtonInner}>
+                            <MaterialIcons
+                                name={job?.saved ? "favorite" : "favorite-border"}
+                                size={20}
+                                color={job?.saved ? "#EF4444" : "#6B7280"}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                )}
             </TouchableOpacity>
-        </View>
+        </Animated.View>
     );
 };
 
 const styles = StyleSheet.create({
     jobCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: getHeight(60),
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
+        padding: 14,
+        marginBottom: 12,
         borderWidth: 1,
-        borderColor: '#eee',
+        borderColor: '#E5E7EB',
+        shadowColor: "#8B5CF6",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+
+    },
+    gradientOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: 14,
+        overflow: 'hidden',
+    },
+    jobCardContent: {
+        flexDirection: 'row',
+    },
+    logoWrapper: {
+        marginRight: 10,
+    },
+    logoContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
             height: 2,
         },
-        maxWidth: getWidth(1.1),
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
     },
-    jobCardContent: {
-        flex: 1,
-        flexDirection: 'row',
-    },
-    companyLogoContainer: {
-        width: 50,
-        height: 50,
-        backgroundColor: '#0f7bc9',
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-    },
-    companyLogoText: {
-        color: '#fff',
-        fontSize: 24,
-        fontWeight: 'bold',
+    logoText: {
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontWeight: '700',
     },
     jobInfoContainer: {
         flex: 1,
     },
-    jobTitleContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 8,
+    titleContainer: {
+        marginBottom: 6,
     },
     jobTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        flex: 1,
-        marginRight: 8,
-    },
-    jobDetailsContainer: {
-        marginBottom: 12,
+        fontSize: getWidth(22),
+        fontWeight: '700',
+        color: '#111827',
+        lineHeight: getWidth(22) * 1.25,
     },
     detailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 4,
+        marginBottom: 5,
+    },
+    iconWrapper: {
+        width: 18,
+        height: 18,
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 5,
     },
     detailText: {
-        marginLeft: 8,
-        fontSize: 14,
-        color: '#666',
+        fontSize: 12,
+        color: '#6B7280',
+        fontWeight: '500',
+        flex: 1,
     },
-    iconText: {
-        fontSize: 20,
-        color: '#777',
+    infoRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        marginBottom: 8,
+    },
+    jobDescription: {
+        fontSize: 12,
+        color: '#6B7280',
+        lineHeight: 18,
+        marginBottom: 8,
     },
     cardFooter: {
-        flexDirection: 'row-reverse',
+        flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
     },
-    likeIcon: {
-        fontSize: 24,
-        color: '#777',
-    },
-    tagsContainer: {
-        flexDirection: 'row',
-    },
-    tagType: {
-        backgroundColor: '#e6effe',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        marginRight: 8,
-    },
-    tagTypeText: {
-        color: '#0057b8',
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    tagPosted: {
-        backgroundColor: '#fff7e6',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-    tagPostedText: {
-        color: '#f5a623',
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    container: {
-        borderRadius: 8,
-        marginRight: 12,
+    jobTypeBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#C4B5FD',
         overflow: 'hidden',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
-    gradient: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '100%',
+    jobTypeText: {
+        color: '#7C3AED',
+        fontSize: 11,
+        fontWeight: '600',
     },
-    text: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontWeight: 'bold',
+    actionContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    viewDetailsText: {
+        color: '#7C3AED',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    saveButton: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        zIndex: 10,
+    },
+    saveButtonInner: {
+        padding: 6,
+        borderRadius: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
     },
 });
 

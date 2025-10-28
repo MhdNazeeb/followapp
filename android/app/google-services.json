@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "807916096911",
+    "project_id": "qatarfollow-90d8f",
+    "storage_bucket": "qatarfollow-90d8f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807916096911:android:245e8be082aac59f06cffa",
+        "android_client_info": {
+          "package_name": "com.qatarfollow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807916096911-s6blbft6a97omha2fldmu0h19j0pdrv5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.qatarfollow",
+            "certificate_hash": "cba6ab568dbae7c6fb6c03b52a787f6d1b934c07"
+          }
+        },
+        {
+          "client_id": "807916096911-3fameo0voull18li077955o8hh44o9qm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhUUwKUPAc0LVBRVcfnBCsXN5pVP-pHAE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807916096911-3fameo0voull18li077955o8hh44o9qm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

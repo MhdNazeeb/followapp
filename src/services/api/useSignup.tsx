@@ -19,11 +19,9 @@ const useSignup = () => {
         mutationFn: signup,
         onSuccess: (data) => {
             toastSuccess(data)
-           
         },
         onError: (error) => {
             console.error("Signup failed:", error.response?.data || error.message);
-
             toastError(error.response?.data)
         }
 
