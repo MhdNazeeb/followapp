@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@react-native-vector-icons/material-icons';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import FastImage from "@d11/react-native-fast-image";
 

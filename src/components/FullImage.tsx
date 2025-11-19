@@ -15,7 +15,6 @@ const FullImage = ({ imageUri, onBack }: any) => {
                     <Text style={styles.backButtonText}>←</Text>
                 </TouchableOpacity>
             </View>
-
             {/* Full screen image */}
             <View style={styles.imageContainer}>
                 <Image
@@ -99,6 +98,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
+
 })
 
 export default FullImage

@@ -6,6 +6,7 @@ import {
   StatusBar,
   FlatList,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 
 import { useJobs } from '../../../services/api/useGetJobs';
@@ -20,6 +21,8 @@ import { RootStackParamList } from '../../../navgation/navigation.types';
 import { Portal } from 'react-native-paper';
 import JobCardSkeleton from '../../../components/skelton/JobCardSkeleton';
 import { LegendList } from "@legendapp/list"
+import BannerAdd from '../../../components/adds/BannerAdd';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 const HomeScreen = () => {
@@ -52,6 +55,7 @@ const HomeScreen = () => {
     refetch();
   }, [refetch]);
 
+
   const renderFooter = () => {
     if (!isFetchingNextPage) return null;
 
@@ -80,16 +84,9 @@ const HomeScreen = () => {
       </View>
     );
   };
-
   return (
-    <View style={styles.container}>
-      {/* <InAppUpdate /> */}
+    <SafeAreaView style={[styles.container]} edges={['top', 'left', 'right']}>
 
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent={true}
-      />
 
       <Portal>
         <LoginPromptModal
@@ -108,19 +105,26 @@ const HomeScreen = () => {
         contentContainerStyle={[
           {
             justifyContent: 'center',
-            paddingTop: getHeight(4),
+            paddingTop: Platform.OS === 'android' ? getHeight(4) : getHeight(6),
           },
         ]}
         showsVerticalScrollIndicator={false}
         data={jobs}
         keyExtractor={(item: any) => item?._id}
-        renderItem={({ item }: any) => (
-          <JobCard
-            job={item}
-            screen="home"
-            setShowLoginModal={handleShowLoginModal}
-          />
-        )}
+        renderItem={({ item, index }: any) => {
+          if (index + 1 % 2 === 0) {
+            return <BannerAdd />;
+          } else {
+            return (
+              <JobCard
+                job={item}
+                screen="home"
+                setShowLoginModal={handleShowLoginModal}
+              />
+            );
+          }
+        }}
+
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -132,7 +136,7 @@ const HomeScreen = () => {
         initialScrollIndex={0}
       />
 
-    </View>
+    </SafeAreaView>
   );
 };
 

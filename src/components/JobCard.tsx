@@ -6,7 +6,7 @@ import { RootStackParamList } from '../navgation/navigation.types';
 import { useNavigation } from '@react-navigation/native';
 import { routeNames } from '../navgation/Screens';
 import { formatDate } from '../utils/formateDate';
-import { MaterialIcons } from '@react-native-vector-icons/material-icons';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
 import { getItem } from '../utils/storage';
 import useSavedJobs from '../services/api/useSavedJobs';
 import { getColorByLetter, getHeight, getWidth } from '../Theme/constens';

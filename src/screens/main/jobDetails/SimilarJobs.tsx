@@ -26,6 +26,7 @@ export const SimilarJobs: React.FC<SimilarJobsProps> = ({ jobs }) => {
         maxToRenderPerBatch={5}
         windowSize={10}
       />
+      
     </View>
   );
 };

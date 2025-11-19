@@ -2,7 +2,7 @@ import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
 
 const adUnitId = __DEV__ ? TestIds.BANNER : 'ca-app-pub-your-ad-unit-id';
 
-export default function BannerExample() {
+export default function BannerAdd() {
   return (
     <BannerAd
       unitId={adUnitId}

@@ -13,8 +13,8 @@ import {
   Dimensions,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { MaterialIcons } from '@react-native-vector-icons/material-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from '@react-native-vector-icons/material-icons';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -342,7 +342,7 @@ const ProfileScreen = () => {
   );
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={{ paddingBottom: insets.bottom + getHeight(13.5) }}
@@ -397,7 +397,7 @@ const ProfileScreen = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -417,6 +417,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: getHeight(100) },
     shadowOpacity: 0.15,
     shadowRadius: getWidth(10),
+    height:getHeight(5),
     elevation: 5,
     borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.2)',
